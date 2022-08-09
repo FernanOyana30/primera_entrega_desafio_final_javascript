@@ -6,24 +6,26 @@ class Producto {
         this.nombre = nombre.toUpperCase();
         this.pesoxkg = parseFloat(peso);
         this.precio = parseFloat(precio);
-        this.stock = parseFloat(stock); 
-        this.vendido = false;       
+        this.stock = parseFloat(stock);                
     }  
-    /*Métodos*/  
-    sumaIva() {
-        this.precio = this.precio * 1,21;
-    }    
-    disminuirStock(nuevoStock){
-        if(this.stock -= nuevoStock < 0){
-            alert(`El producto ${this.nombre} no puede tener stock negativo`)   
-        } else{
-            this.stock -= nuevoStock
-        }    
+    /*Métodos*/      
+    //La propiedad this.stock disminuye en 1 cada vez que se agrega el producto al carrito     
+    disminuirStock(){
+        this.stock = this.stock -= 1
+        //Si this.stock < 0 = no se puede seguir añadiendo el producto al carrito
+        if(this.stock < 0){
+            alert(`El producto ${this.nombre} no puede tener stock negativo`)      
+            this.stock = this.stock +=1  
+            carrito.pop()     
+        }  else{
+            alert("Producto agregado al carrito")
+        }
     }
+    //Muestra información del producto agregado en el carrito
     infoCompra(){
-        return `${this.nombre} x${this.pesoxkg}kg | $${this.precio} `
-        
+        return `${this.nombre} x${this.pesoxkg}kg | $${this.precio} `        
     }
+    //Muestra información del producto en el array de tienda
     mostrarProducto(){
         return `${this.id} | ${this.nombre} x${this.pesoxkg}kg | $${this.precio} | ${this.stock} disponibles` 
     }
@@ -39,25 +41,27 @@ const producto7 = new Producto ("7", "filet de lenguado", 1, 1799, 20)
 
 /*ARRAYS DE OBJETOS*/
 const ARRAY_TIENDA = [producto1, producto2, producto3, producto4, producto5, producto6, producto7]
-const carrito = [] //A este array vacío se añaden los objetos de ARRAY_TIENDA
+const carrito = [] //A este array vacío se le añaden los objetos de ARRAY_TIENDA
 
-/*funciones*/
+/*FUNCIONES*/
+//Mostrar información de los productos disponibles en la tienda
 const obtenerInfoProductos = (productosArray) => {
     return productosArray.map((elemento) => elemento.mostrarProducto()).join('\n')
 }
+//Agregar al carrito por id de producto
 const agregarAlCarritoById = (productos) => {
     const infoProductos = obtenerInfoProductos(productos)
     const id = prompt("Ingrese el id del producto que desea agregar al carrito:\n" + infoProductos)
     const producto = productos.find((producto)=> producto.id === id)
-    if (!producto) return
-    carrito.push(producto)
-    alert("Producto agregado al carrito")    
+    if (!producto) return    
+    producto.disminuirStock()    
+    carrito.push(producto) 
 }
-const imprimirCarrito = (carritoDeProductos) => {
-    carritoDeProductos.forEach((producto) => {
-    console.log(producto.infoCompra() )
-    })
+//Mostrar información del carrito de compras
+const imprimirCarrito = (carrito) => {
+    return carrito.map((elemento) => elemento.infoCompra()).join('\n') 
 }
+//Mostrar total a pagar de todos los productos añadidos al carrito 
 const obtenerTotal = (productosArray) => {
     let total = 0
     productosArray.forEach((producto) => {
@@ -65,6 +69,7 @@ const obtenerTotal = (productosArray) => {
     })
     return total
 }
+
 const productos = ARRAY_TIENDA.map(producto => new Producto(
     producto.id,
     producto.nombre,
@@ -74,15 +79,17 @@ const productos = ARRAY_TIENDA.map(producto => new Producto(
 ))
 
 /*Ciclo y condicionales*/
-let respuesta
-while(respuesta != "si"){
+let respuesta = true
+while(respuesta){
     agregarAlCarritoById(productos)
     respuesta = prompt("¿Desea agregar más productos? s/n").toLowerCase()
     if (respuesta == "s"){        
         continue
     } else if (respuesta == "n" ) {
-        alert("Compra finalizada. Abre la consola para ver tu carrito.")
-        imprimirCarrito(carrito)
+        alert("Compra finalizada. Muchas gracias.")
+        alert('Productos en el carrito:\n'+ imprimirCarrito(carrito) )
+        alert('Total a pagar: $'+ obtenerTotal(carrito))   
+        console.log(imprimirCarrito(carrito))
         console.log('Total: $'+ obtenerTotal(carrito))    
         break    
     } else {
